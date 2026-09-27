@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { AuthGate } from "@/components/AuthGate";
 import { RaceGame } from "@/components/RaceGame";
 import { requirePlayableUser } from "@/lib/requirePlayableUser";
 
@@ -9,7 +10,7 @@ const description =
 
 export const Route = createFileRoute("/live")({
   beforeLoad: async ({ location }) => {
-    await requirePlayableUser(location.pathname);
+    return { auth: await requirePlayableUser(location.pathname) };
   },
   head: () => ({
     meta: [
@@ -23,10 +24,14 @@ export const Route = createFileRoute("/live")({
 });
 
 function QuickBrainRacerLive() {
+  const { auth } = Route.useRouteContext();
+
   return (
     <main>
       <h1 className="sr-only">KruMath Math Racer Live</h1>
-      <RaceGame mode="live" />
+      <AuthGate initial={auth} routerPath="/live">
+        <RaceGame mode="live" />
+      </AuthGate>
     </main>
   );
 }
